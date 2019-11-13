@@ -1,0 +1,27 @@
+description: "A demo for DM BootCamp 2019"
+
+# This pipeline should run against HSC data, this loads relevant overrides
+instrument: lsst.obs.subaru.gen3.hsc.instrument.HyperSuprimeCam
+
+# Extend the default ProcessCcd, but exclude isr and characterizeImage tasks
+# for the sake of time
+inherits:
+  location: $PIPE_TASKS_DIR/pipelines/ProcessCcd.yaml
+  exclude:
+    - isr
+    - charImage
+
+# Add in the Task that was just created
+tasks:
+  example:
+    class: WritingPipelineTasks.ApertureTask
+    config:
+      # Set the radius for the aperture
+      apRad: 4.5
+      # change the name of the output dataset type
+      connections.outputCatalog: extraAperture
+
+contracts:
+  # verify that the aperture used in this pipeine is also used in the default
+  # circular aperture
+  - example.apRad in calibrate.measurement.plugins["base_CircularApertureFlux"].radii
